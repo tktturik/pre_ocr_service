@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True, slots=True)
 class ScorePoints:
-    """Опорные точки шкалы проверки: значение bad даёт скор 0, passed — порог 0.5, good — скор 1."""
+    """Опорные точки шкалы проверки: значение bad - 0, passed - 0.5, good — 1."""
 
     bad: float
     passed: float

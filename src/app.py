@@ -1,24 +1,26 @@
-
+import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI
 
 from config import settings
 from config.settings.analysis import AnalysisSettings
 from config.settings.logger import LoggerSettings
-import logging
-
 from exc_handlers import setup_exception_handlers
 from request_middleware import setup_request_middleware
 
 logger = logging.getLogger(__name__)
 
+
 def create_app(
     analysis_settings: AnalysisSettings | None = None,
     logger_settings: LoggerSettings | None = None,
 ) -> FastAPI:
-    """Фабрика приложения; `None` в настройках означает значения из `config.settings`."""
+    """Фабрика приложения.
+
+    `None` в настройках означает значения из `config.settings`.
+    """
     analysis_settings = analysis_settings or settings.analysis
     logger_settings = logger_settings or settings.logger
 

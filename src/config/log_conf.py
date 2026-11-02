@@ -34,13 +34,17 @@ def _format_frame(frame: traceback.FrameSummary, index: int, project_root: Path)
     except ValueError:
         shown = Path(frame.filename)
     line = frame.line.strip() if frame.line else ""
-    return f'{"└" + "──" * index}> File "{shown}", line {frame.lineno}, in {frame.name}: \t[{line}]'
+    return (
+        f'{"└" + "──" * index}> File "{shown}", line {frame.lineno}, '
+        f"in {frame.name}: \t[{line}]"
+    )
 
 
-def _format_single(
-    exc: BaseException, project_root: Path, max_frames: int
-) -> str:
-    """Форматирует одно звено цепочки: кадры проекта (последние max_frames) и строку исключения."""
+def _format_single(exc: BaseException, project_root: Path, max_frames: int) -> str:
+    """Форматирует одно звено цепочки.
+
+    Выводятся кадры проекта (последние max_frames) и строка исключения.
+    """
     frames = traceback.extract_tb(exc.__traceback__)
     selected = [f for f in frames if _is_project_frame(f, project_root)]
     if not selected and frames:
@@ -79,10 +83,11 @@ def format_exception_with_filtered_traceback(
     project_root: Path,
     max_frames: int,
 ) -> str:
-    """Форматирует исключение с цепочкой `__cause__`/`__context__` и стеком, отфильтрованным по кадрам проекта.
+    """Форматирует исключение с цепочкой `__cause__`/`__context__` и стеком.
 
-    Звенья идут от первопричины к внешнему исключению. Если у звена нет кадров проекта,
-    печатается последний кадр библиотеки. Выводится не более `max_frames` последних кадров на звено.
+    Стек отфильтрован по кадрам проекта. Звенья идут от первопричины к внешнему
+    исключению. Если у звена нет кадров проекта, печатается последний кадр
+    библиотеки. Выводится не более `max_frames` последних кадров на звено.
     """
     if exc_value.__traceback__ is not exc_traceback:
         exc_value = exc_value.with_traceback(exc_traceback)
@@ -99,7 +104,10 @@ def add_log_context(record: "Record") -> None:
 
 
 class InterceptHandler(logging.Handler):
-    """Перенаправляет записи стандартного logging в loguru с фильтрованным стеком исключений."""
+    """Перенаправляет записи стандартного logging в loguru.
+
+    Стек исключений в записи фильтруется по кадрам проекта.
+    """
 
     def __init__(self, project_root: Path, max_frames: int) -> None:
         super().__init__()
@@ -120,7 +128,7 @@ class InterceptHandler(logging.Handler):
             frame.f_code.co_filename == logging.__file__
             or "loguru" in frame.f_code.co_filename
         ):
-            frame = frame.f_back
+            frame = frame.f_back  # type: ignore[assignment]
             depth += 1
 
         message = record.getMessage()

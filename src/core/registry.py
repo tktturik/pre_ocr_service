@@ -9,7 +9,7 @@ class Registry[T]:
         self._items: dict[str, T] = {}
 
     def register(self, name: str, item: T) -> None:
-        """Регистрирует элемент; повторное имя `ValueError` (ошибка сборки, не запроса)."""
+        """Регистрирует элемент; повторное имя `ValueError`."""
         if name in self._items:
             raise ValueError(f"{self._kind} '{name}' is already registered")
         self._items[name] = item

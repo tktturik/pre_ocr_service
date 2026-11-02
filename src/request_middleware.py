@@ -11,7 +11,10 @@ REQUEST_ID_HEADER = "X-Request-ID"
 
 
 def setup_request_middleware(app: FastAPI) -> None:
-    """Подключает middleware: request_id в contextvar, `request.state`, заголовок ответа и итоговая строка лога."""
+    """
+    Подключает middleware: request_id в contextvar, `request.state`,
+    заголовок ответа и итоговая строка лога.
+    """
 
     @app.middleware("http")
     async def request_id_middleware(

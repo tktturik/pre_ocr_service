@@ -3,7 +3,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from request_middleware import REQUEST_ID_HEADER
 from config.log_context import request_id_var
 from core.errors import (
     AnalysisError,
@@ -13,12 +12,13 @@ from core.errors import (
     OverloadedError,
     UnknownChecksError,
 )
+from request_middleware import REQUEST_ID_HEADER
 
 INTERNAL_ERROR_CODE = "internal_error"
 
 
 def _request_id(request: Request) -> str:
-    """request_id из `request.state`; для необработанных исключений contextvar уже сброшен."""
+    """request_id из `request.state` для необработанных exc contextvar уже сброшен."""
     return getattr(request.state, "request_id", request_id_var.get())
 
 
@@ -75,7 +75,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:
-        """Необработанное исключение: лог со стеком, ответ без текста и типа исключения."""
+        """Необработанное исключение лог со стеком ответ без текста и типа исключения"""
         logger.exception(
             "Unhandled {} in API endpoint\nAPI endpoint: {}\nMethod: {}",
             exc.__class__.__name__,

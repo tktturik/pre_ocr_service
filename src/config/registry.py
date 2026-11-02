@@ -9,7 +9,11 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
-SETTINGS_REGISTRY: tuple[type, ...] = (FastAPISettings, LoggerSettings, AnalysisSettings)
+SETTINGS_REGISTRY: tuple[type, ...] = (
+    FastAPISettings,
+    LoggerSettings,
+    AnalysisSettings,
+)
 
 
 class SettingsContainer:
