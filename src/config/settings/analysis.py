@@ -22,7 +22,6 @@ class AnalysisSettings(BaseAppSettings):
     warmup_timeout_s: float = Field(default=30)
     max_tasks_per_worker: int = Field(default=200)
     start_method: Literal["spawn", "forkserver"] = Field(default="spawn")
-    executor_kind: Literal["process", "thread"] = Field(default="process")
     check_modules: tuple[str, ...] = Field(default=())
 
     @model_validator(mode="after")
