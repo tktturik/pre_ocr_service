@@ -2,6 +2,8 @@ import logging
 
 from fastapi import APIRouter, FastAPI, Response, status
 
+from api.analysis.router import router as analysis_router
+
 logger = logging.getLogger(__name__)
 
 health_router = APIRouter()
@@ -17,7 +19,7 @@ def get_routers() -> list[APIRouter]:
     """
     Возвращает список маршрутов для подключения к приложению.
     """
-    return [health_router]
+    return [health_router, analysis_router]
 
 
 def setup_routers(app: FastAPI) -> None:
