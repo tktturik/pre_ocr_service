@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
+from pydantic import BaseModel
 
 from config.log_context import request_id_var
 from core.errors import (
@@ -15,6 +16,14 @@ from core.errors import (
 from request_middleware import REQUEST_ID_HEADER
 
 INTERNAL_ERROR_CODE = "internal_error"
+
+
+class ErrorResponse(BaseModel):
+    """Тело ошибки HTTP, общее для всех эндпоинтов."""
+
+    code: str
+    request_id: str
+    details: dict[str, list[str]] | None
 
 
 def _request_id(request: Request) -> str:
@@ -39,15 +48,19 @@ def _details(exc: AnalysisError) -> dict[str, list[str]] | None:
 
 
 def _error_response(
-    request: Request, status_code: int, code: str, details: object = None
+    request: Request,
+    status_code: int,
+    code: str,
+    details: dict[str, list[str]] | None = None,
 ) -> JSONResponse:
     request_id = _request_id(request)
     headers = {REQUEST_ID_HEADER: request_id}
     if status_code == 503:
         headers["Retry-After"] = "1"
+    body = ErrorResponse(code=code, request_id=request_id, details=details)
     return JSONResponse(
         status_code=status_code,
-        content={"code": code, "request_id": request_id, "details": details},
+        content=body.model_dump(),
         headers=headers,
     )
 
