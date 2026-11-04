@@ -20,9 +20,13 @@ def score_value(value: float, points: ScorePoints) -> float:
 
 
 def make_outcome(name: str, value: float | None, points: ScorePoints) -> CheckOutcome:
-    """Строит исход проверки; при отсутствии значения скор и passed не определены."""
+    """Строит исход проверки.
+
+    Значение `None` (проверку не удалось измерить) считается провалом:
+    passed=False, score=0.0, value=None. Иначе скор считается по точкам.
+    """
     if value is None:
-        return CheckOutcome(name=name, passed=None, score=None, value=None)
+        return CheckOutcome(name=name, passed=False, score=0.0, value=None)
     score = score_value(value, points)
     return CheckOutcome(
         name=name, passed=score >= _PASS_SCORE, score=score, value=value
