@@ -12,4 +12,5 @@ def test_get_checks_returns_registered_names(client: TestClient) -> None:
         "contrast",
         "illumination",
         "noise",
+        "skew",
     ]
