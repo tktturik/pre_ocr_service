@@ -13,6 +13,23 @@ _MIN_COMPONENT_AREA = 4  # меньшие компоненты считаютс�
 _TRIM_LOW = 0.3  # доли медианы высоты, за которыми компонента отсекается
 _TRIM_HIGH = 3.0
 _TRIM_PASSES = 2
+_MIN_LETTERS = 20  # меньше буквенных компонент — маски чернил нет
+
+
+def _letter_ids(stats: np.ndarray) -> np.ndarray:
+    """Индексы строк stats: площадь не меньше минимума и высота после отсева."""
+    ids = np.flatnonzero(stats[:, cv2.CC_STAT_AREA] >= _MIN_COMPONENT_AREA)
+    heights = stats[ids, cv2.CC_STAT_HEIGHT]
+    for _ in range(_TRIM_PASSES):
+        if ids.size == 0:
+            break
+        median = np.median(heights)
+        keep = (heights >= _TRIM_LOW * median) & (heights <= _TRIM_HIGH * median)
+        if not keep.any():
+            break
+        ids = ids[keep]
+        heights = heights[keep]
+    return ids
 
 
 class RasterContext:
@@ -63,9 +80,9 @@ class RasterContext:
         return np.clip(self.gray / self.background, 0.0, 1.0).astype(np.float32)
 
     @cached_property
-    def ink_mask(self) -> np.ndarray | None:
+    def _otsu_mask(self) -> np.ndarray | None:
         """
-        Маска чернил uint8 (0/255): меньший по площади класс Otsu;
+        Маска uint8 (0/255): меньший по площади класс Otsu;
         None, если чернил нет.
         """
         levels = (self.normalized * 255).astype(np.uint8)
@@ -90,10 +107,10 @@ class RasterContext:
         Статистика связных компонент чернил (left, top, width, height, area);
         None, если их нет.
         """
-        if self.ink_mask is None:
+        if self._otsu_mask is None:
             return None
         count, _, stats, _ = cv2.connectedComponentsWithStats(
-            self.ink_mask, connectivity=8
+            self._otsu_mask, connectivity=8
         )
         if count <= 1:
             return None
@@ -108,20 +125,29 @@ class RasterContext:
         if self.components is None:
             return None
         stats = self.components
-        heights = stats[
-            stats[:, cv2.CC_STAT_AREA] >= _MIN_COMPONENT_AREA, cv2.CC_STAT_HEIGHT
-        ]
-        if heights.size == 0:
+        ids = _letter_ids(stats)
+        if ids.size == 0:
             return None
-        for _ in range(_TRIM_PASSES):
-            median = np.median(heights)
-            kept = heights[
-                (heights >= _TRIM_LOW * median) & (heights <= _TRIM_HIGH * median)
-            ]
-            if kept.size == 0:
-                break
-            heights = kept
-        return float(np.median(heights))
+        return float(np.median(stats[ids, cv2.CC_STAT_HEIGHT]))
+
+    @cached_property
+    def ink_mask(self) -> np.ndarray | None:
+        """
+        Маска чернил uint8 (0/255) только из буквенных компонент маски Otsu
+        (площадь и высота как у `text_height`); None, если маски Otsu нет
+        или буквенных компонент меньше `_MIN_LETTERS`.
+        """
+        if self._otsu_mask is None:
+            return None
+        count, labels, stats, _ = cv2.connectedComponentsWithStats(
+            self._otsu_mask, connectivity=8
+        )
+        ids = _letter_ids(stats[1:])
+        if ids.size < _MIN_LETTERS:
+            return None
+        is_letter = np.zeros(count, dtype=bool)
+        is_letter[ids + 1] = True
+        return is_letter[labels.astype(np.intp)].astype(np.uint8) * 255
 
     @cached_property
     def ink_level(self) -> float | None:
