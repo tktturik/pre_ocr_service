@@ -53,7 +53,7 @@ class NoiseCheck(Check):
     """Шум серого растра относительно контраста текста."""
 
     name = "noise"
-    points = ScorePoints(bad=0.177, passed=0.11, good=0.0566)
+    points = ScorePoints(bad=0.13, passed=0.076, good=0.029)
 
     def measure(self, ctx: RasterContext) -> float | None:
         """Отношение σ шума к контрасту `фон − чернила`, меньше — лучше.

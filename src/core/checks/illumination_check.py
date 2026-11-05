@@ -46,7 +46,7 @@ class IlluminationCheck(Check):
     """Неравномерность освещения: перепад гладкого фона под текстом."""
 
     name = "illumination"
-    points = ScorePoints(bad=0.6, passed=0.46, good=0.3)
+    points = ScorePoints(bad=0.57, passed=0.48, good=0.25)
 
     def measure(self, ctx: RasterContext) -> float | None:
         """Перепад `1 − min/max` гладкой поверхности фона по клеткам с текстом.

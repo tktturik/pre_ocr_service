@@ -19,7 +19,7 @@ class SharpnessCheck(Check):
     """σ размытия края в пикселях: чем больше значение, тем сильнее размыт текст."""
 
     name: ClassVar[str] = "blur"
-    points: ClassVar[ScorePoints] = ScorePoints(bad=2.4, passed=1.8, good=1.0)
+    points: ClassVar[ScorePoints] = ScorePoints(bad=2.4, passed=1.9, good=1.1)
 
     def measure(self, ctx: RasterContext) -> float | None:
         """Возвращает значение, монотонно растущее с σ размытия края в пикселях.
