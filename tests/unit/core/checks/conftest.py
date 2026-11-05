@@ -19,3 +19,22 @@ def page_raster_factory() -> Callable[[int, int], Raster]:
         return Raster(index=0, pixels=pixels)
 
     return make
+
+
+@pytest.fixture
+def blot_only_raster() -> Raster:
+    """Страница без текста: одно крупное тёмное пятно 200x200 на фоне 255."""
+    pixels = np.full((480, 480), 255, dtype=np.uint8)
+    pixels[150:350, 150:350] = 0
+    return Raster(index=0, pixels=pixels)
+
+
+@pytest.fixture
+def text_with_blot_raster(
+    page_raster_factory: Callable[[int, int], Raster],
+) -> Raster:
+    """Глифы 24 px в строках до y=290, ниже отдельное пятно [320:450, 100:380]."""
+    pixels = page_raster_factory(24, 0).pixels.copy()
+    pixels[290:, :] = 255
+    pixels[320:450, 100:380] = 0
+    return Raster(index=0, pixels=pixels)

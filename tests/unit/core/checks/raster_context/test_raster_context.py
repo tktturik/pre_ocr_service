@@ -12,3 +12,20 @@ def test_low_contrast_ink_is_still_detected(
 
     assert context.ink_mask is not None
     assert context.text_height is not None
+
+
+def test_blot_without_text_gives_no_ink_mask(blot_only_raster: Raster) -> None:
+    """Одно пятно без букв: маски чернил нет, высота текста по Otsu есть."""
+    context = RasterContext(blot_only_raster)
+
+    assert context.ink_mask is None
+    assert context.text_height is not None
+
+
+def test_blot_is_excluded_from_ink_mask(text_with_blot_raster: Raster) -> None:
+    """Крупное пятно не входит в маску чернил, пиксели глифов входят."""
+    context = RasterContext(text_with_blot_raster)
+
+    assert context.ink_mask is not None
+    assert context.ink_mask[385, 240] == 0
+    assert context.ink_mask[30, 25] == 255
