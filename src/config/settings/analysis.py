@@ -28,6 +28,7 @@ class AnalysisSettings(BaseAppSettings):
             "core.checks.sharpness_check",
             "core.checks.tonal_range_check",
             "core.checks.illumination_check",
+            "core.checks.noise_check",
         )
     )
 
