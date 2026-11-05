@@ -8,7 +8,7 @@ from core.models.raster_types import Raster
 _BACKGROUND_SIDE = 384  # длинная сторона уменьшенной копии для оценки фона
 _BACKGROUND_BLOCK = 16  # сторона блока на уменьшенной копии
 _BACKGROUND_PERCENTILE = 90
-_MIN_INK_CONTRAST = 0.15  # минимальный разрыв средних нормализованных классов Otsu
+_MIN_INK_CONTRAST = 0.05  # минимальный разрыв средних нормализованных классов Otsu
 _MIN_COMPONENT_AREA = 4  # меньшие компоненты считаются шумом
 _TRIM_LOW = 0.3  # доли медианы высоты, за которыми компонента отсекается
 _TRIM_HIGH = 3.0
