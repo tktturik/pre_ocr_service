@@ -60,3 +60,27 @@ def test_measure_score_falls_as_shadow_grows(
 
     assert scores[0] > scores[2]
     assert scores[0] >= scores[1] >= scores[2]
+
+
+def test_measure_shadow_without_text_passes(
+    shadow_without_text_ctx: RasterContext,
+) -> None:
+    """Тень там, где нет текста, не влияет на вердикт."""
+    check = IlluminationCheck()
+
+    value = check.measure(shadow_without_text_ctx)
+    outcome = make_outcome(check.name, value, check.points)
+
+    assert outcome.passed is True
+
+
+def test_measure_gray_fill_with_sharp_edges_passes(
+    gray_fill_ctx: RasterContext,
+) -> None:
+    """Серая заливка с резкими краями не считается перепадом освещения."""
+    check = IlluminationCheck()
+
+    value = check.measure(gray_fill_ctx)
+    outcome = make_outcome(check.name, value, check.points)
+
+    assert outcome.passed is True
