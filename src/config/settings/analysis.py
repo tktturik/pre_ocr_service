@@ -22,7 +22,14 @@ class AnalysisSettings(BaseAppSettings):
     warmup_timeout_s: float = Field(default=30)
     max_tasks_per_worker: int = Field(default=200)
     start_method: Literal["spawn", "forkserver"] = Field(default="spawn")
-    check_modules: tuple[str, ...] = Field(default=())
+    check_modules: tuple[str, ...] = Field(
+        default=(
+            "core.checks.resolution_check",
+            "core.checks.sharpness_check",
+            "core.checks.tonal_range_check",
+            "core.checks.illumination_check",
+        )
+    )
 
     @model_validator(mode="after")
     def _queue_size_defaults_to_pool_size(self) -> Self:
