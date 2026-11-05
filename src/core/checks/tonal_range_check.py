@@ -14,7 +14,7 @@ class TonalRangeCheck(Check):
     """
 
     name: ClassVar[str] = "contrast"
-    points: ClassVar[ScorePoints] = ScorePoints(bad=0.15, passed=0.3, good=0.5)
+    points: ClassVar[ScorePoints] = ScorePoints(bad=0.05, passed=0.13, good=0.3)
 
     def measure(self, ctx: RasterContext) -> float | None:
         """Возвращает 1 − медиану нормализованной яркости под маской чернил."""

@@ -1,4 +1,4 @@
-"""Проверка резкости: σ размытия края, делённое на высоту текста."""
+"""Проверка резкости: σ размытия края в пикселях."""
 
 from typing import ClassVar
 
@@ -16,24 +16,26 @@ _MIN_EDGE_CONTRAST = 1.0  # меньший разрыв фона и чернил
 
 
 class SharpnessCheck(Check):
-    """σ размытия края / H: чем больше значение, тем сильнее размыт текст."""
+    """σ размытия края в пикселях: чем больше значение, тем сильнее размыт текст."""
 
     name: ClassVar[str] = "blur"
-    # Provisional: сняты на синтетике (σ/H: 0.04 резкий, 0.06 при σ=2px,
-    # 0.11 при σ=4px, H=20); утверждает владелец. Обратное направление.
-    points: ClassVar[ScorePoints] = ScorePoints(bad=0.11, passed=0.08, good=0.05)
+    points: ClassVar[ScorePoints] = ScorePoints(bad=2.4, passed=1.8, good=1.0)
 
     def measure(self, ctx: RasterContext) -> float | None:
-        """Возвращает ширину размытия края, делённую на высоту текста.
+        """Возвращает значение, монотонно растущее с σ размытия края в пикселях.
 
         Край буквы - скачок от яркости фона к яркости чернил. Чем сильнее
         размытие, тем положе склон: макс. крутизна ≈ C / (σ·√(2π)), где C -
         перепад яркости фона и чернил. Крутизну берём по границе маски
-        (90-й перцентиль градиента) и находим σ. None, если измерить нельзя.
+        (90-й перцентиль градиента) и находим σ. Высоту текста не делим:
+        она растёт от размытия, и σ/H не отличает размытый текст (D54).
+
+        Значение не равно σ (дно ~0.8 px от дискретизации, наклон ~0.5)
+        и зависит от толщины штриха: при одном σ разница до ~0.3 px.
+        None, если измерить нельзя.
         """
         mask = ctx.ink_mask
-        text_height = ctx.text_height
-        if mask is None or text_height is None:
+        if mask is None:
             return None
         contrast = ctx.background_level - (ctx.ink_level or 0.0)
         if contrast < _MIN_EDGE_CONTRAST:
@@ -49,7 +51,7 @@ class SharpnessCheck(Check):
         if gradient <= 0.0:
             return None
         sigma = contrast / (gradient * np.sqrt(2 * np.pi))
-        return float(sigma / text_height)
+        return float(sigma)
 
 
 CHECK = SharpnessCheck()
