@@ -70,7 +70,7 @@ def _render_page(pdf: pdfium.PdfDocument, number: int, limits: AnalysisLimits) -
         scale = _fit_scale(
             dpi / POINTS_PER_INCH, width, height, limits.max_raster_pixels
         )
-        bitmap = page.render(scale=int(scale), grayscale=True)
+        bitmap = page.render(scale=scale, grayscale=True) # pyright: ignore[reportArgumentType]
         try:
             # to_numpy делит память с битмапом, поэтому копируем до закрытия.
             pixels = np.array(bitmap.to_numpy(), dtype=np.uint8)
