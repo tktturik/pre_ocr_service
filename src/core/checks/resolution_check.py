@@ -11,7 +11,7 @@ class ResolutionCheck(Check):
     """Медиана высоты компонент чернил; мелкий текст даёт малое значение."""
 
     name: ClassVar[str] = "resolution"
-    points: ClassVar[ScorePoints] = ScorePoints(bad=8.0, passed=12.0, good=20.0)
+    points: ClassVar[ScorePoints] = ScorePoints(bad=5.0, passed=5.5, good=11.0)
 
     def measure(self, ctx: RasterContext) -> float | None:
         """Возвращает высоту текста в пикселях или None, если чернил нет."""
