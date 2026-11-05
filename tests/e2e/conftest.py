@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -10,13 +11,19 @@ from config.settings.logger import LoggerSettings
 
 @pytest.fixture
 def analysis_settings() -> AnalysisSettings:
-    """Пул из одного процесса и проверка-пустышка constant."""
+    """Пул из одного процесса и проверки по умолчанию."""
     return AnalysisSettings(
         pool_size=1,
         queue_size=1,
         start_method="spawn",
-        check_modules=("tests.fakes.constant_check",),
     )
+
+
+@pytest.fixture
+def template_bytes() -> dict[str, bytes]:
+    """Байты реальных файлов из tests/templates по имени файла."""
+    templates = Path(__file__).parent.parent / "templates"
+    return {path.name: path.read_bytes() for path in templates.iterdir()}
 
 
 @pytest.fixture
