@@ -67,3 +67,13 @@ def test_analyze_text_body_returns_unsupported_format(
 
     assert response.status_code == 400
     assert response.json()["code"] == "unsupported_format"
+
+
+def test_analyze_without_checks_returns_400_invalid_request(
+    client: TestClient, template_bytes: dict[str, bytes]
+) -> None:
+    """Запрос без параметра checks даёт 400 invalid_request, а не 422 FastAPI."""
+    response = client.post("/analyze", content=template_bytes["image_009.jpg"])
+
+    assert response.status_code == 400
+    assert response.json()["code"] == "invalid_request"
