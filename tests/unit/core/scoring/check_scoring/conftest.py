@@ -15,3 +15,9 @@ def score_points() -> ScorePoints:
 def check_name() -> str:
     """Имя проверки для результата."""
     return "fake_check"
+
+
+@pytest.fixture
+def reverse_score_points() -> ScorePoints:
+    """Опорные точки обратной шкалы: bad > passed > good."""
+    return ScorePoints(bad=10.0, passed=5.0, good=0.0)
