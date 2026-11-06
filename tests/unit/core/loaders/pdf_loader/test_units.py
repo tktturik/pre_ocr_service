@@ -3,6 +3,7 @@ import math
 import pypdfium2 as pdfium
 import pytest
 
+from core.errors import TooManyPagesError
 from core.loaders.pdf_loader import PdfLoader, _main_image_dpi
 from core.models.analysis_types import AnalysisLimits
 from core.models.raster_types import Raster
@@ -29,3 +30,13 @@ def test_units_renders_page_with_main_image_density(
     width_px = units[0].pixels.shape[1]
     assert width_px == math.ceil(width_pt * dpi / POINTS_PER_INCH)
     assert width_px > width_pt
+
+
+def test_units_rejects_pdf_over_page_limit(
+    two_page_pdf_bytes: bytes, one_page_limits: AnalysisLimits
+) -> None:
+    """Превышение лимита страниц даёт TooManyPagesError до первого растра."""
+    units = PdfLoader().units(two_page_pdf_bytes, one_page_limits)
+
+    with pytest.raises(TooManyPagesError):
+        next(units)
