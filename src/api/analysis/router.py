@@ -18,6 +18,18 @@ from services.analysis_service import AnalysisService
 router = APIRouter()
 
 
+_ANALYZE_BODY = {
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/octet-stream": {
+                "schema": {"type": "string", "format": "binary"},
+            },
+        },
+    },
+}
+
+
 @router.get("/checks")
 async def list_checks(
     check_names: Annotated[tuple[str, ...], Depends(get_check_names)],
@@ -26,7 +38,7 @@ async def list_checks(
     return ChecksResponse(checks=list(check_names))
 
 
-@router.post("/analyze")
+@router.post("/analyze", openapi_extra=_ANALYZE_BODY)
 async def analyze(
     request: Request,
     checks: Annotated[tuple[str, ...], Depends(get_requested_checks)],
