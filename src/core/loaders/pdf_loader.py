@@ -63,14 +63,17 @@ def _open_pdf(data: bytes) -> pdfium.PdfDocument:
 
 def _render_page(pdf: pdfium.PdfDocument, number: int, limits: AnalysisLimits) -> Unit:
     index = number + 1
-    page = pdf[number]
     try:
+        page = pdf[number]
         width, height = page.get_size()
         dpi = _main_image_dpi(page) or limits.pdf_fallback_dpi
+        width, height = page.get_size()
+        if width <= 0 or height <= 0:
+            return UnitError(index=index, reason="page has empty size")
         scale = _fit_scale(
             dpi / POINTS_PER_INCH, width, height, limits.max_raster_pixels
         )
-        bitmap = page.render(scale=scale, grayscale=True) # pyright: ignore[reportArgumentType]
+        bitmap = page.render(scale=scale, grayscale=True)  # pyright: ignore[reportArgumentType]
         try:
             # to_numpy делит память с битмапом, поэтому копируем до закрытия.
             pixels = np.array(bitmap.to_numpy(), dtype=np.uint8)
