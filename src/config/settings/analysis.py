@@ -13,7 +13,7 @@ class AnalysisSettings(BaseAppSettings):
     model_config = SettingsConfigDict(env_prefix="ANALYSIS_")
 
     max_file_bytes: int = Field(default=50 * 1024 * 1024)
-    max_raster_pixels: int = Field(default=10000 * 10000)
+    max_raster_pixels: int = Field(default=40_000_000)
     max_pdf_pages: int = Field(default=100)
     pdf_fallback_dpi: int = Field(default=300)
     pool_size: int = Field(default_factory=lambda: os.process_cpu_count() or 1)
